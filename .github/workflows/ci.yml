@@ -9,6 +9,24 @@ jobs:
   api:
     name: api (Laravel)
     runs-on: ubuntu-latest
+    # Run against the real target database, not the SQLite default in phpunit.xml.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: underwriting_test
+          POSTGRES_USER: underwriting
+          POSTGRES_PASSWORD: underwriting
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U underwriting" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: underwriting_test
+      DB_USERNAME: underwriting
+      DB_PASSWORD: underwriting
     defaults:
       run:
         working-directory: api
