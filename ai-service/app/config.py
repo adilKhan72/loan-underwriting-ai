@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     llm_provider: Provider = "fixture"
 
     anthropic_api_key: str | None = None
-    anthropic_model: str = "claude-sonnet-5-5"
+    anthropic_model: str = "claude-opus-5-5"
 
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"

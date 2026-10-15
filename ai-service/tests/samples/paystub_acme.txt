@@ -1,0 +1,22 @@
+ACME LOGISTICS INC.                         EARNINGS STATEMENT
+1200 Harbor Way, Oakland CA
+
+Employee: [NAME]            SSN: [SSN]             Employee ID: 48213
+Pay Period: 09/01/2026 - 09/14/2026          Pay Date: 09/19/2026
+Pay Frequency: Bi-Weekly
+
+EARNINGS            RATE      HOURS     CURRENT       YTD
+Regular            24.50      80.00     1,960.00    35,280.00
+Overtime           36.75       4.00       147.00     1,470.00
+GROSS PAY                               2,107.00    36,750.00
+
+DEDUCTIONS
+Federal Income Tax                        198.42
+Social Security                           130.63
+Medicare                                   30.55
+CA State Tax                               64.10
+401(k)                                    105.35
+TOTAL DEDUCTIONS                          529.05
+
+NET PAY                                 1,577.95
+Direct Deposit to account [ACCOUNT_NUMBER]

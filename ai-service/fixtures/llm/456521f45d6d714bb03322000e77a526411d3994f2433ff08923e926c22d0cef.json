@@ -1,0 +1,34 @@
+{
+  "kind": "json",
+  "response": {
+    "closing_balance_cents": 204508,
+    "confidence": 0.93,
+    "deposits": [
+      {
+        "amount_cents": 157140,
+        "description": "DIRECT DEP ACME LOGISTICS PAYROLL",
+        "likely_payroll": true,
+        "posted_on": "2026-09-05"
+      },
+      {
+        "amount_cents": 6000,
+        "description": "ZELLE FROM [NAME]",
+        "likely_payroll": false,
+        "posted_on": "2026-09-12"
+      },
+      {
+        "amount_cents": 157795,
+        "description": "DIRECT DEP ACME LOGISTICS PAYROLL",
+        "likely_payroll": true,
+        "posted_on": "2026-09-19"
+      }
+    ],
+    "notes": [
+      "One overdraft fee on 2026-09-28 although the balance stayed positive; may reflect a same-day pending debit."
+    ],
+    "opening_balance_cents": 41218,
+    "overdraft_or_nsf_count": 1,
+    "statement_end": "2026-09-30",
+    "statement_start": "2026-09-01"
+  }
+}
