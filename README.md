@@ -20,6 +20,7 @@ All routes require a Sanctum bearer token. Money is in integer cents.
 | `GET` | `/api/applications?status=` | Paginated list, newest first |
 | `GET` | `/api/applications/{id}` | One application with its masked applicant and documents |
 | `POST` | `/api/applications/{id}/documents` | Upload a `paystub` or `bank_statement` (PDF/PNG/JPEG, 10 MB max). Stored privately; duplicates rejected by SHA-256 |
+| `GET` | `/api/applications/{id}/audit` | The application's audit trail, plus `chain_intact` (hash chain re-verified on read) |
 | `POST` | `/api/applications/{id}/submit` | Lock the application and queue document processing (requires at least one paystub) |
 
 Submitting dispatches one `ProcessDocument` job per document as a failure-tolerant **job batch**. Each job reads the PDF's text layer, **redacts PII** (SSN, account/routing/card numbers, email, phone, DOB) and calls the AI service. It then stores an `extraction` (data, errors, what was redacted, by type and count only) on the document. Outages retry with backoff (10s/60s/300s). Unreadable files (scans/images until OCR lands) go to `needs_review`. When the batch finishes, `ApplicationDocumentsProcessed` fires for the rules engine.
@@ -94,6 +95,7 @@ The full design is in [docs/architecture.md](docs/architecture.md). Key decision
 - [ADR-0002](docs/adr/0002-separate-python-ai-service.md): A separate Python AI service, not LLM calls inside Laravel
 - [ADR-0003](docs/adr/0003-pluggable-llm-providers.md): Pluggable LLM providers with a deterministic fixture provider for tests
 - [ADR-0004](docs/adr/0004-pii-never-reaches-the-model.md): PII is redacted before any text reaches a model
+- [ADR-0005](docs/adr/0005-hash-chained-append-only-audit-trail.md): Hash-chained, append-only audit trail
 
 ## Quick start
 
@@ -118,7 +120,7 @@ For hosted models, set `LLM_PROVIDER=anthropic` or `openai` along with the match
 | 3 | AI service: provider interface (Claude / OpenAI / Ollama / fixtures), `/v1/extract` with schema validation | ✅ done (#3) |
 | 4 | Document pipeline: submit → batch of queue jobs → PDF text → PII redaction → `/v1/extract` → stored extraction | ✅ done (#4) |
 | 5 | Rules engine (versioned policy) + `/v1/explain` | ✅ done (#5) |
-| 6 | Append-only audit trail + PII redaction before AI calls | planned |
+| 6 | Hash-chained, append-only audit trail (PII redaction shipped in #4) | ✅ done (#6) |
 | 7 | Underwriter dashboard (Vue) + demo | planned |
 
 ## Why this project
