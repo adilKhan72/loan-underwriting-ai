@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Audit\AuditLog;
 use App\Enums\ApplicationStatus;
 use App\Enums\DocumentStatus;
 use App\Enums\ExtractionStatus;
@@ -112,7 +113,7 @@ class ProcessDocument implements ShouldQueue
         ?string $provider = null,
         int $attempts = 0,
     ): void {
-        $this->document->extractions()->create([
+        $extraction = $this->document->extractions()->create([
             'status' => $extractionStatus,
             'data' => $data,
             'errors' => $errors,
@@ -122,5 +123,16 @@ class ProcessDocument implements ShouldQueue
         ]);
 
         $this->setStatus($documentStatus);
+
+        app(AuditLog::class)->record($this->document->loan_application_id, 'document.processed', [
+            'document_id' => $this->document->id,
+            'type' => $this->document->type->value,
+            'status' => $documentStatus->value,
+            'extraction_id' => $extraction->id,
+            'extraction_status' => $extractionStatus->value,
+            'redactions' => $redaction?->counts ?? [],
+            'provider' => $provider,
+            'error_count' => count($errors),
+        ]);
     }
 }

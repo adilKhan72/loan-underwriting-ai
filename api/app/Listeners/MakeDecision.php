@@ -2,8 +2,10 @@
 
 namespace App\Listeners;
 
+use App\Audit\AuditLog;
 use App\Enums\ApplicationStatus;
 use App\Enums\ExplanationStatus;
+use App\Enums\RuleOutcome;
 use App\Events\ApplicationDocumentsProcessed;
 use App\Jobs\ExplainDecision;
 use App\Underwriting\FactsBuilder;
@@ -19,6 +21,7 @@ class MakeDecision implements ShouldQueue
         private readonly FactsBuilder $facts,
         private readonly RulesEngine $engine,
         private readonly UnderwritingPolicy $policy,
+        private readonly AuditLog $audit,
     ) {}
 
     public function handle(ApplicationDocumentsProcessed $event): void
@@ -44,6 +47,19 @@ class MakeDecision implements ShouldQueue
             ]);
 
             $application->forceFill(['status' => ApplicationStatus::Decided])->save();
+
+            $codes = fn (RuleOutcome $outcome) => array_values(array_map(
+                fn (RuleResult $r) => $r->code,
+                array_filter($result['results'], fn (RuleResult $r) => $r->outcome === $outcome),
+            ));
+
+            $this->audit->record($application, 'decision.made', [
+                'decision_id' => $decision->id,
+                'outcome' => $result['outcome']->value,
+                'policy_version' => $this->policy->version(),
+                'failed_rules' => $codes(RuleOutcome::Fail),
+                'referred_rules' => $codes(RuleOutcome::Refer),
+            ]);
 
             return $decision;
         });

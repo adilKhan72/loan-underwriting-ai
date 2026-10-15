@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Audit\AuditLog;
 use App\Enums\ExplanationStatus;
 use App\Models\Decision;
 use App\Services\Ai\AiServiceClient;
@@ -51,6 +52,8 @@ class ExplainDecision implements ShouldQueue
             'principal_reasons' => $explanation['principal_reasons'],
             'explanation_provider' => $explanation['provider'],
         ]);
+
+        $this->audit(ExplanationStatus::Ready, $explanation['provider']);
     }
 
     public function failed(?Throwable $exception): void
@@ -61,5 +64,15 @@ class ExplainDecision implements ShouldQueue
     private function markUnavailable(): void
     {
         $this->decision->update(['explanation_status' => ExplanationStatus::Unavailable]);
+        $this->audit(ExplanationStatus::Unavailable);
+    }
+
+    private function audit(ExplanationStatus $status, ?string $provider = null): void
+    {
+        app(AuditLog::class)->record($this->decision->loan_application_id, 'decision.explained', [
+            'decision_id' => $this->decision->id,
+            'status' => $status->value,
+            'provider' => $provider,
+        ]);
     }
 }

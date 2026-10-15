@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Audit\AuditLog;
 use App\Enums\ApplicationStatus;
 use App\Enums\DocumentType;
 use App\Events\ApplicationDocumentsProcessed;
@@ -10,6 +11,7 @@ use App\Http\Resources\LoanApplicationResource;
 use App\Jobs\ProcessDocument;
 use App\Models\LoanApplication;
 use Illuminate\Bus\Batch;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Validation\ValidationException;
 
@@ -18,7 +20,7 @@ class SubmitApplicationController extends Controller
     /**
      * Locks the application and queues one ProcessDocument job per document as a single batch.
      */
-    public function __invoke(LoanApplication $application): LoanApplicationResource
+    public function __invoke(Request $request, LoanApplication $application, AuditLog $audit): LoanApplicationResource
     {
         abort_unless($application->status === ApplicationStatus::Draft, 409, 'Only draft applications can be submitted.');
 
@@ -32,6 +34,10 @@ class SubmitApplicationController extends Controller
             'status' => ApplicationStatus::Submitted,
             'submitted_at' => now(),
         ])->save();
+
+        $audit->record($application, 'application.submitted', [
+            'document_count' => $application->documents()->count(),
+        ], $request->user());
 
         $applicationId = $application->id;
 

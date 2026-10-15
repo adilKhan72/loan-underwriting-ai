@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Audit\AuditLog;
 use App\Enums\ApplicationStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLoanApplicationRequest;
@@ -32,12 +33,18 @@ class LoanApplicationController extends Controller
         return LoanApplicationResource::collection($applications);
     }
 
-    public function store(StoreLoanApplicationRequest $request): JsonResponse
+    public function store(StoreLoanApplicationRequest $request, AuditLog $audit): JsonResponse
     {
-        $application = DB::transaction(function () use ($request) {
+        $application = DB::transaction(function () use ($request, $audit) {
             $applicant = Applicant::create($request->validated('applicant'));
+            $application = $applicant->loanApplications()->create($request->safe()->except('applicant'));
 
-            return $applicant->loanApplications()->create($request->safe()->except('applicant'));
+            $audit->record($application, 'application.created', [
+                'amount_requested_cents' => $application->amount_requested_cents,
+                'term_months' => $application->term_months,
+            ], $request->user());
+
+            return $application;
         });
 
         return (new LoanApplicationResource($application->load('applicant', 'documents')))

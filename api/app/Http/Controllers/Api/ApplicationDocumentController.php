@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Audit\AuditLog;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreDocumentRequest;
 use App\Http\Resources\DocumentResource;
@@ -14,7 +15,7 @@ class ApplicationDocumentController extends Controller
     /**
      * Files go to the private `local` disk under a generated name; the client's filename is only kept as metadata.
      */
-    public function store(StoreDocumentRequest $request, LoanApplication $application): JsonResponse
+    public function store(StoreDocumentRequest $request, LoanApplication $application, AuditLog $audit): JsonResponse
     {
         abort_unless($application->status->acceptsDocuments(), 409, 'Documents can only be added to draft applications.');
 
@@ -42,6 +43,13 @@ class ApplicationDocumentController extends Controller
             'size_bytes' => $file->getSize(),
             'sha256' => $sha256,
         ]);
+
+        $audit->record($application, 'document.uploaded', [
+            'document_id' => $document->id,
+            'type' => $document->type->value,
+            'size_bytes' => $document->size_bytes,
+            'sha256' => $document->sha256,
+        ], $request->user());
 
         return (new DocumentResource($document))->response()->setStatusCode(201);
     }
