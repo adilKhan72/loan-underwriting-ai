@@ -47,6 +47,6 @@ class LoanApplicationController extends Controller
 
     public function show(LoanApplication $application): LoanApplicationResource
     {
-        return new LoanApplicationResource($application->load('applicant', 'documents'));
+        return new LoanApplicationResource($application->load('applicant', 'documents.latestExtraction'));
     }
 }

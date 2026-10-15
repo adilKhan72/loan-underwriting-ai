@@ -23,6 +23,7 @@ class DocumentResource extends JsonResource
             'size_bytes' => $this->size_bytes,
             'sha256' => $this->sha256,
             'uploaded_at' => $this->created_at,
+            'extraction' => new ExtractionResource($this->whenLoaded('latestExtraction')),
         ];
     }
 }

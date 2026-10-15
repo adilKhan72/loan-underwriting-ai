@@ -20,7 +20,9 @@ All routes require a Sanctum bearer token. Money is in integer cents.
 | `GET` | `/api/applications?status=` | Paginated list, newest first |
 | `GET` | `/api/applications/{id}` | One application with its masked applicant and documents |
 | `POST` | `/api/applications/{id}/documents` | Upload a `paystub` or `bank_statement` (PDF/PNG/JPEG, 10 MB max). Stored privately; duplicates rejected by SHA-256 |
-| `POST` | `/api/applications/{id}/submit` | Lock the application for underwriting (requires at least one paystub) |
+| `POST` | `/api/applications/{id}/submit` | Lock the application and queue document processing (requires at least one paystub) |
+
+Submitting dispatches one `ProcessDocument` job per document as a failure-tolerant **job batch**. Each job reads the PDF's text layer, **redacts PII** (SSN, account/routing/card numbers, email, phone, DOB) and calls the AI service. It then stores an `extraction` (data, errors, what was redacted, by type and count only) on the document. Outages retry with backoff (10s/60s/300s). Unreadable files (scans/images until OCR lands) go to `needs_review`. When the batch finishes, `ApplicationDocumentsProcessed` fires for the rules engine.
 
 ### AI service
 
@@ -91,7 +93,7 @@ For hosted models, set `LLM_PROVIDER=anthropic` or `openai` along with the match
 | 1 | Monorepo skeleton: Laravel API, FastAPI service, Docker Compose, CI | ✅ done (#1) |
 | 2 | Loan application domain: applicants, applications, documents API, PII encrypted at rest | ✅ done (#2) |
 | 3 | AI service: provider interface (Claude / OpenAI / Ollama / fixtures), `/v1/extract` with schema validation | ✅ done (#3) |
-| 4 | Document pipeline: upload → queue → redact → extract → store | planned |
+| 4 | Document pipeline: submit → batch of queue jobs → PDF text → PII redaction → `/v1/extract` → stored extraction | ✅ done (#4) |
 | 5 | Rules engine (versioned policy) + `/v1/explain` | planned |
 | 6 | Append-only audit trail + PII redaction before AI calls | planned |
 | 7 | Underwriter dashboard (Vue) + demo | planned |
