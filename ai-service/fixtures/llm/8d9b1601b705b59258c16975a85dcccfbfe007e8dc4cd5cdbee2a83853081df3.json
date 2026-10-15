@@ -1,0 +1,15 @@
+{
+  "kind": "json",
+  "response": {
+    "confidence": 0.93,
+    "employer_name": "CORNER CAFE LLC",
+    "gross_pay_cents": 31200,
+    "net_pay_cents": 28140,
+    "notes": [],
+    "pay_date": "2026-10-13",
+    "pay_frequency": "weekly",
+    "pay_period_end": "2026-10-10",
+    "pay_period_start": "2026-10-04",
+    "ytd_gross_cents": null
+  }
+}

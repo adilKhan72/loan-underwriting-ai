@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from app.extraction import extract
 from app.llm.base import LLMProvider, ProviderError
 from app.llm.factory import get_provider
+from app.llm.fixture import FixtureMissingError
 from app.schemas import DocumentType
 
 router = APIRouter(prefix="/v1", tags=["extraction"])
@@ -31,6 +32,9 @@ def extract_document(request: ExtractRequest, provider: LLMProvider = Depends(ge
     """Sync def on purpose: provider calls block, so FastAPI runs this in its threadpool."""
     try:
         result = extract(request.document_type, request.text, provider)
+    except FixtureMissingError as e:
+        # Deterministic miss: retrying can never succeed, so it must not look like an outage.
+        raise HTTPException(status_code=422, detail=str(e))
     except ProviderError as e:
         # Upstream failure, not a bad document: 502 tells the Laravel worker to retry later.
         raise HTTPException(status_code=502, detail=str(e))

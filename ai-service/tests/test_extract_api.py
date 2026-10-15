@@ -52,3 +52,10 @@ def test_provider_outage_is_a_502_so_callers_retry():
 
     assert response.status_code == 502
     assert response.json()["detail"] == "anthropic unreachable"
+
+
+def test_fixture_miss_is_permanent_not_an_outage():
+    response = client.post("/v1/extract", json={"document_type": "paystub", "text": "a document with no fixture"})
+
+    assert response.status_code == 422
+    assert "no fixture" in response.json()["detail"]

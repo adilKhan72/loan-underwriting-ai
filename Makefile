@@ -1,4 +1,4 @@
-.PHONY: key up down migrate test test-api test-ai
+.PHONY: key up down migrate demo test test-api test-ai test-dashboard
 
 # Generate APP_KEY into ./.env (needed once before `make up`)
 key:
@@ -15,7 +15,11 @@ down:
 migrate:
 	docker compose exec api php artisan migrate
 
-test: test-api test-ai
+# Prints an API token for the dashboard at http://localhost:5173
+demo:
+	docker compose exec api php artisan demo:setup
+
+test: test-api test-ai test-dashboard
 
 test-api:
 	docker run --rm -u $$(id -u):$$(id -g) -v "$$PWD/api":/app -w /app composer:2 \
@@ -24,3 +28,6 @@ test-api:
 test-ai:
 	docker run --rm -e PYTHONDONTWRITEBYTECODE=1 -v "$$PWD/ai-service":/app -w /app python:3.12-slim \
 		sh -c 'pip install -q -r requirements.txt && python -m pytest -q -p no:cacheprovider'
+
+test-dashboard:
+	cd dashboard && npm ci --silent && npm test && npm run build

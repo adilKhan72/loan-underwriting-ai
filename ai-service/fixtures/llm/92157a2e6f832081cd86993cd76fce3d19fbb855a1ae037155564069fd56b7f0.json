@@ -1,0 +1,15 @@
+{
+  "kind": "json",
+  "response": {
+    "confidence": 0.95,
+    "employer_name": "NORTHWIND SUPPLY CO.",
+    "gross_pay_cents": 264000,
+    "net_pay_cents": 209474,
+    "notes": [],
+    "pay_date": "2026-10-12",
+    "pay_frequency": "biweekly",
+    "pay_period_end": "2026-10-10",
+    "pay_period_start": "2026-09-27",
+    "ytd_gross_cents": 5016000
+  }
+}
