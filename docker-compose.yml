@@ -65,6 +65,14 @@ services:
       OLLAMA_URL: http://ollama:11434
     ports: ["8001:8001"]
 
+  dashboard:
+    build:
+      context: ./dashboard
+      args:
+        VITE_API_URL: http://localhost:8000
+    ports: ["5173:80"]
+    depends_on: [api]
+
   # Optional local model: `docker compose --profile local-llm up` with LLM_PROVIDER=ollama
   ollama:
     image: ollama/ollama:latest
