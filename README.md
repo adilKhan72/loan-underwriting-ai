@@ -22,6 +22,20 @@ All routes require a Sanctum bearer token. Money is in integer cents.
 | `POST` | `/api/applications/{id}/documents` | Upload a `paystub` or `bank_statement` (PDF/PNG/JPEG, 10 MB max). Stored privately; duplicates rejected by SHA-256 |
 | `POST` | `/api/applications/{id}/submit` | Lock the application for underwriting (requires at least one paystub) |
 
+### AI service
+
+`POST /v1/extract` with `{"document_type": "paystub" | "bank_statement", "text": "<redacted text>"}` returns
+validated, typed fields (money in cents, ISO dates, a confidence score and notes for the underwriter).
+
+- Each vendor's native structured output is used: Claude `output_config.format` (`claude-opus-5-5`, with
+  server-side refusal fallback), OpenAI strict `json_schema`, and Ollama schema-constrained decoding.
+- Pydantic re-validates every answer, including business rules such as net pay ≤ gross pay. Invalid output gets
+  **one corrective retry with the validation errors**. Still invalid, or refused by the model, means `needs_review`
+  for a human. It is never passed downstream.
+- Provider outages return `502`, so the Laravel worker retries later. A bad document never causes a retry loop.
+- CI uses the `fixture` provider: golden answers for the synthetic samples in `ai-service/tests/samples/`,
+  keyed by a hash of prompt + document + schema, so any prompt change shows up as fixture changes in review.
+
 ## Architecture
 
 ```mermaid
@@ -76,7 +90,7 @@ For hosted models, set `LLM_PROVIDER=anthropic` or `openai` along with the match
 |---|---|---|
 | 1 | Monorepo skeleton: Laravel API, FastAPI service, Docker Compose, CI | ✅ done (#1) |
 | 2 | Loan application domain: applicants, applications, documents API, PII encrypted at rest | ✅ done (#2) |
-| 3 | AI service: provider interface (Claude / OpenAI / Ollama / fixtures), `/v1/extract` with schema validation | planned |
+| 3 | AI service: provider interface (Claude / OpenAI / Ollama / fixtures), `/v1/extract` with schema validation | ✅ done (#3) |
 | 4 | Document pipeline: upload → queue → redact → extract → store | planned |
 | 5 | Rules engine (versioned policy) + `/v1/explain` | planned |
 | 6 | Append-only audit trail + PII redaction before AI calls | planned |

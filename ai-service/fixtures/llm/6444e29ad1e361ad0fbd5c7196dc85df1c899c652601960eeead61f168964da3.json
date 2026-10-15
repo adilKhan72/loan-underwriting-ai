@@ -1,0 +1,17 @@
+{
+  "kind": "json",
+  "response": {
+    "confidence": 0.96,
+    "employer_name": "ACME LOGISTICS INC.",
+    "gross_pay_cents": 210700,
+    "net_pay_cents": 157795,
+    "notes": [
+      "Includes 4 hours of overtime this period; regular earnings are 196000 cents."
+    ],
+    "pay_date": "2026-09-19",
+    "pay_frequency": "biweekly",
+    "pay_period_end": "2026-09-14",
+    "pay_period_start": "2026-09-01",
+    "ytd_gross_cents": 3675000
+  }
+}

@@ -1,0 +1,16 @@
+BAYSIDE CREDIT UNION - CHECKING STATEMENT
+Account: [ACCOUNT_NUMBER]          Statement Period: 09/01/2026 - 09/30/2026
+
+Beginning Balance                                   $412.18
+
+DATE    DESCRIPTION                          DEBITS     CREDITS    BALANCE
+09/03   POS WALMART #2231                     84.12                  328.06
+09/05   DIRECT DEP ACME LOGISTICS PAYROLL                1,571.40  1,899.46
+09/08   RENT - ONLINE PMT                    950.00                  949.46
+09/12   ZELLE FROM [NAME]                                  60.00   1,009.46
+09/15   PG&E AUTOPAY                         118.33                  891.13
+09/19   DIRECT DEP ACME LOGISTICS PAYROLL                1,577.95  2,469.08
+09/24   AUTO LOAN PMT                        389.00                2,080.08
+09/28   OVERDRAFT FEE                         35.00                2,045.08
+
+Ending Balance                                     $2,045.08
