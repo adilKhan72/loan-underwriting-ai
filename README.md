@@ -10,6 +10,18 @@ reaches the model.
 
 > **Status: in active development.** Built in public, one pull request per milestone. See [Roadmap](#roadmap).
 
+## API (so far)
+
+All routes require a Sanctum bearer token. Money is in integer cents.
+
+| Method | Route | Purpose |
+|---|---|---|
+| `POST` | `/api/applications` | Create a draft application with its applicant (SSN and DOB are encrypted at rest and never returned) |
+| `GET` | `/api/applications?status=` | Paginated list, newest first |
+| `GET` | `/api/applications/{id}` | One application with its masked applicant and documents |
+| `POST` | `/api/applications/{id}/documents` | Upload a `paystub` or `bank_statement` (PDF/PNG/JPEG, 10 MB max). Stored privately; duplicates rejected by SHA-256 |
+| `POST` | `/api/applications/{id}/submit` | Lock the application for underwriting (requires at least one paystub) |
+
 ## Architecture
 
 ```mermaid
@@ -62,12 +74,12 @@ For hosted models, set `LLM_PROVIDER=anthropic` or `openai` along with the match
 
 | # | Milestone | Status |
 |---|---|---|
-| 1 | Monorepo skeleton: Laravel API, FastAPI service, Docker Compose, CI | in progress |
-| 2 | Loan application domain: applicants, applications, documents API + tests | planned |
+| 1 | Monorepo skeleton: Laravel API, FastAPI service, Docker Compose, CI | ✅ done (#1) |
+| 2 | Loan application domain: applicants, applications, documents API, PII encrypted at rest | ✅ done (#2) |
 | 3 | AI service: provider interface (Claude / OpenAI / Ollama / fixtures), `/v1/extract` with schema validation | planned |
 | 4 | Document pipeline: upload → queue → redact → extract → store | planned |
 | 5 | Rules engine (versioned policy) + `/v1/explain` | planned |
-| 6 | PII encryption at rest + audit trail | planned |
+| 6 | Append-only audit trail + PII redaction before AI calls | planned |
 | 7 | Underwriter dashboard (Vue) + demo | planned |
 
 ## Why this project
