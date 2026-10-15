@@ -1,0 +1,73 @@
+name: loan-underwriting-ai
+
+x-api-env: &api-env
+  APP_ENV: local
+  APP_DEBUG: "true"
+  APP_KEY: ${APP_KEY:?run `make key` or set APP_KEY in .env}
+  DB_CONNECTION: pgsql
+  DB_HOST: postgres
+  DB_PORT: 5432
+  DB_DATABASE: underwriting
+  DB_USERNAME: underwriting
+  DB_PASSWORD: underwriting
+  QUEUE_CONNECTION: redis
+  CACHE_STORE: redis
+  SESSION_DRIVER: redis
+  REDIS_HOST: redis
+  AI_SERVICE_URL: http://ai-service:8001
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: underwriting
+      POSTGRES_USER: underwriting
+      POSTGRES_PASSWORD: underwriting
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U underwriting"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: ./api
+    environment: *api-env
+    ports: ["8000:8000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  worker:
+    build: ./api
+    command: ["php", "artisan", "queue:work", "--tries=3", "--backoff=10"]
+    environment: *api-env
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  ai-service:
+    build: ./ai-service
+    environment:
+      LLM_PROVIDER: ${LLM_PROVIDER:-fixture}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OLLAMA_URL: http://ollama:11434
+    ports: ["8001:8001"]
+
+  # Optional local model: `docker compose --profile local-llm up` with LLM_PROVIDER=ollama
+  ollama:
+    image: ollama/ollama:latest
+    profiles: [local-llm]
+    volumes: [ollama:/root/.ollama]
+    ports: ["11434:11434"]
+
+volumes:
+  pgdata:
+  ollama:
