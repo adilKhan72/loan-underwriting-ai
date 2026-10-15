@@ -34,6 +34,11 @@ class PiiRedactor
         'PHONE' => [
             '/(?<!\d)(?:\+1[ .-]?)?\(?\d{3}\)?[ .-]\d{3}[ .-]\d{4}(?!\d)/',
         ],
+        // Labelled names only: free-text names are indistinguishable from employer or merchant names.
+        'NAME' => [
+            // Name words are Capitalised-lowercase and stop at the next label, so "Employee ID" isn't swallowed.
+            '/\b(?:Employee(?: Name)?|Account Holder|Pay to(?: the order of)?|Name)\s*:\s*[A-Z][a-z\'-]+(?:\s+(?!(?:Employee|Pay|Account|Date|Dept|Check|Period|SSN)\b)[A-Z][a-z\'-]+){1,3}/',
+        ],
         'DATE_OF_BIRTH' => [
             '/\b(?:DOB|Date of Birth|Birth ?Date)\s*[:#]?\s*\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}\b/i',
         ],

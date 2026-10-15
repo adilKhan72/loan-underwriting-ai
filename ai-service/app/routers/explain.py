@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.explanation import Explanation, ExplanationFailed, ExplainRequest, explain
 from app.llm.base import LLMProvider, ProviderError
 from app.llm.factory import get_provider
+from app.llm.fixture import FixtureMissingError
 
 router = APIRouter(prefix="/v1", tags=["explanation"])
 
@@ -15,6 +16,8 @@ class ExplainResponse(Explanation):
 def explain_decision(request: ExplainRequest, provider: LLMProvider = Depends(get_provider)) -> ExplainResponse:
     try:
         explanation = explain(request, provider)
+    except FixtureMissingError as e:
+        raise HTTPException(status_code=422, detail=str(e))
     except ExplanationFailed as e:
         # The input is fine; this model couldn't produce valid prose. 422 → caller keeps the decision without prose.
         raise HTTPException(status_code=422, detail=f"explanation unavailable: {e}")

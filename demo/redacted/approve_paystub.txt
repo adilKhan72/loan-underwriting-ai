@@ -1,0 +1,7 @@
+NORTHWIND SUPPLY CO. EARNINGS STATEMENT
+[NAME] SSN: [SSN] Employee ID: 7731
+Pay Period: 09/27/2026 - 10/10/2026 Pay Date: 10/12/2026 Pay Frequency: Bi-Weekly
+GROSS PAY 2,640.00 YTD GROSS 50,160.00
+Federal Tax 264.10 Social Security 163.68 Medicare 38.28 State Tax 79.20
+NET PAY 2,094.74
+Direct deposit to [ACCOUNT_NUMBER]

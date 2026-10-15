@@ -8,7 +8,9 @@ date into validated structured data. A versioned rules engine decides approve / 
 plain-English explanation for the underwriter and the applicant. Every step is audit-logged, and PII never
 reaches the model.
 
-> **Status: in active development.** Built in public, one pull request per milestone. See [Roadmap](#roadmap).
+> Built in public, one pull request per milestone. See [Roadmap](#roadmap).
+
+![Decision view](docs/screenshots/decline.png)
 
 ## API (so far)
 
@@ -97,6 +99,31 @@ The full design is in [docs/architecture.md](docs/architecture.md). Key decision
 - [ADR-0004](docs/adr/0004-pii-never-reaches-the-model.md): PII is redacted before any text reaches a model
 - [ADR-0005](docs/adr/0005-hash-chained-append-only-audit-trail.md): Hash-chained, append-only audit trail
 
+## Demo (no API key needed)
+
+```bash
+make key && make up && make migrate
+make demo                       # prints an API token
+open http://localhost:5173      # paste the token, then "New application"
+```
+
+Upload the PDFs in [`demo/documents/`](demo/documents) to see both outcomes end to end:
+
+| Applicant | Documents | Outcome |
+|---|---|---|
+| any name, $2,000 / 12 mo, stated income $5,500 | `approve_paystub.pdf` + `approve_bank_statement.pdf` | **approve**: all 9 rules pass, payroll deposit matches net pay |
+| any name, $1,200 / 12 mo, stated income $1,400 | `decline_paystub.pdf` | **decline**: verified income $1,352/mo is below the $1,500 minimum |
+
+With the default `fixture` provider, the AI answers for these demo documents come from golden fixtures keyed by
+their exact redacted text (`demo/redacted/`, produced by `php artisan pii:preview`). Other documents, and the prose
+explanations of new decisions, need a real model (`LLM_PROVIDER=anthropic|openai|ollama`). Without one, the
+dashboard shows those explanations as unavailable, and the decision still stands. The demo pay dates are fixed, so
+`PAY_DATE_RECENT` starts referring once they're more than 45 days old.
+
+| Applications | New application | Approved |
+|---|---|---|
+| ![](docs/screenshots/applications.png) | ![](docs/screenshots/new-application.png) | ![](docs/screenshots/approve.png) |
+
 ## Quick start
 
 Requires Docker only. No API keys needed: the AI service defaults to the deterministic `fixture` provider.
@@ -121,7 +148,7 @@ For hosted models, set `LLM_PROVIDER=anthropic` or `openai` along with the match
 | 4 | Document pipeline: submit → batch of queue jobs → PDF text → PII redaction → `/v1/extract` → stored extraction | ✅ done (#4) |
 | 5 | Rules engine (versioned policy) + `/v1/explain` | ✅ done (#5) |
 | 6 | Hash-chained, append-only audit trail (PII redaction shipped in #4) | ✅ done (#6) |
-| 7 | Underwriter dashboard (Vue) + demo | planned |
+| 7 | Underwriter dashboard (Vue 3 + TS), demo pack, end-to-end run via `docker compose` | ✅ done (#7) |
 
 ## Why this project
 

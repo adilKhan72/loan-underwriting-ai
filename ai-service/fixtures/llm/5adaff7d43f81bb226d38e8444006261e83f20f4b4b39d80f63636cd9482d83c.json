@@ -1,0 +1,26 @@
+{
+  "kind": "json",
+  "response": {
+    "closing_balance_cents": 410185,
+    "confidence": 0.94,
+    "deposits": [
+      {
+        "amount_cents": 209474,
+        "description": "DIRECT DEP NORTHWIND SUPPLY PAYROLL",
+        "likely_payroll": true,
+        "posted_on": "2026-09-28"
+      },
+      {
+        "amount_cents": 209474,
+        "description": "DIRECT DEP NORTHWIND SUPPLY PAYROLL",
+        "likely_payroll": true,
+        "posted_on": "2026-10-12"
+      }
+    ],
+    "notes": [],
+    "opening_balance_cents": 120455,
+    "overdraft_or_nsf_count": 0,
+    "statement_end": "2026-10-14",
+    "statement_start": "2026-09-15"
+  }
+}

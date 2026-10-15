@@ -31,7 +31,8 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-si
 .muted { color: var(--muted); }
 .ok { color: var(--good); }
 .danger { color: var(--bad); }
-.table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; }
+.card { overflow-x: auto; }
 .table th, .table td { text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--border); vertical-align: top; }
 .badge { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; text-transform: capitalize; white-space: nowrap; }
 .badge--good { color: var(--good); background: var(--good-bg); }
@@ -45,7 +46,7 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-si
 .timeline { list-style: none; padding: 0; margin: 0; }
 .timeline li { border-left: 2px solid var(--border); padding: 0 0 1rem 1rem; position: relative; }
 .timeline li::before { content: ""; position: absolute; left: -6px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
-.timeline__head { display: flex; gap: 0.75rem; flex-wrap: wrap; text-transform: capitalize; }
+.timeline__head { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 .timeline__data { display: block; margin: 0.25rem 0; word-break: break-all; }
 .hash { font-size: 0.75rem; }
 form label { display: grid; gap: 0.25rem; margin-bottom: 0.75rem; }
@@ -55,3 +56,6 @@ fieldset { border: 1px solid var(--border); border-radius: 8px; margin: 0 0 1rem
 button, .button { background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 0.55rem 1rem; font: inherit; cursor: pointer; text-decoration: none; }
 button:disabled { opacity: 0.6; }
 button.link { background: none; color: var(--accent); padding: 0; }
+@media (max-width: 600px) {
+  .topbar .muted { display: none; }
+}

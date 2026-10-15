@@ -1,0 +1,39 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 453 >>
+stream
+BT /F1 11 Tf 14 TL 50 780 Td
+(NORTHWIND SUPPLY CO.  EARNINGS STATEMENT) Tj T*
+(Employee: Jordan Avery   SSN: 900-41-2217   Employee ID: 7731) Tj T*
+(Pay Period: 09/27/2026 - 10/10/2026   Pay Date: 10/12/2026   Pay Frequency: Bi-Weekly) Tj T*
+(GROSS PAY 2,640.00   YTD GROSS 50,160.00) Tj T*
+(Federal Tax 264.10  Social Security 163.68  Medicare 38.28  State Tax 79.20) Tj T*
+(NET PAY 2,094.74) Tj T*
+(Direct deposit to Account No. 004418827730) Tj T*
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000745 00000 n 
+trailer << /Size 6 /Root 1 0 R >>
+startxref
+815
+%%EOF

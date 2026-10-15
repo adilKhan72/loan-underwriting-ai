@@ -23,6 +23,8 @@ class PiiRedactorTest extends TestCase
             'email' => ['Contact jane.doe@example.com today', 'Contact [EMAIL] today', 'EMAIL'],
             'phone' => ['Call (555) 010-2000 now', 'Call [PHONE] now', 'PHONE'],
             'date of birth' => ['DOB: 04/12/1990', '[DATE_OF_BIRTH]', 'DATE_OF_BIRTH'],
+            'labelled employee name' => ['Employee: Jordan Avery Employee ID: 7731', '[NAME] Employee ID: 7731', 'NAME'],
+            'account holder name' => ['Account Holder: Maria Ruiz', '[NAME]', 'NAME'],
         ];
     }
 

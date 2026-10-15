@@ -92,3 +92,9 @@ def test_explain_endpoint_maps_failures_to_status_codes():
 
 def test_explain_rejects_requests_without_rule_results():
     assert client.post("/v1/explain", json=dict(DECLINE, rule_results=[])).status_code == 422
+
+
+def test_explain_fixture_miss_is_permanent_not_an_outage():
+    request = dict(DECLINE, rule_results=[{"code": "NEW_RULE", "outcome": "pass", "message": "never recorded"}])
+
+    assert client.post("/v1/explain", json=request).status_code == 422
