@@ -40,14 +40,18 @@ services:
     build: ./api
     environment: *api-env
     ports: ["8000:8000"]
+    # Shared with the worker: uploads saved by the API must be readable by queue jobs.
+    volumes: [uploads:/app/storage/app]
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
 
   worker:
     build: ./api
-    command: ["php", "artisan", "queue:work", "--tries=3", "--backoff=10"]
+    # Retries/backoff are defined per job (ProcessDocument::$tries / $backoff).
+    command: ["php", "artisan", "queue:work"]
     environment: *api-env
+    volumes: [uploads:/app/storage/app]
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -70,4 +74,5 @@ services:
 
 volumes:
   pgdata:
+  uploads:
   ollama:

@@ -8,6 +8,7 @@ use App\Models\LoanApplication;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -21,6 +22,8 @@ class ApplicationDocumentsTest extends TestCase
         parent::setUp();
 
         Storage::fake('local');
+        // Submitting dispatches processing jobs; those are covered in ProcessDocumentTest.
+        Bus::fake();
         Sanctum::actingAs(User::factory()->create());
     }
 

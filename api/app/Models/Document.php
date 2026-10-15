@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable(['type', 'disk', 'path', 'original_name', 'mime_type', 'size_bytes', 'sha256'])]
 #[Hidden(['disk', 'path'])]
@@ -41,5 +43,21 @@ class Document extends Model
     public function loanApplication(): BelongsTo
     {
         return $this->belongsTo(LoanApplication::class);
+    }
+
+    /**
+     * @return HasMany<Extraction, $this>
+     */
+    public function extractions(): HasMany
+    {
+        return $this->hasMany(Extraction::class);
+    }
+
+    /**
+     * @return HasOne<Extraction, $this>
+     */
+    public function latestExtraction(): HasOne
+    {
+        return $this->hasOne(Extraction::class)->latestOfMany();
     }
 }
