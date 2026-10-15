@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app.config import settings
-from app.routers import extract
+from app.routers import explain, extract
 
 app = FastAPI(
     title="Underwriting AI service",
@@ -11,6 +11,7 @@ app = FastAPI(
 )
 
 app.include_router(extract.router)
+app.include_router(explain.router)
 
 
 @app.get("/health")

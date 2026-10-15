@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable(['amount_requested_cents', 'term_months', 'purpose', 'stated_monthly_income_cents'])]
 class LoanApplication extends Model
@@ -55,5 +56,21 @@ class LoanApplication extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(Document::class);
+    }
+
+    /**
+     * @return HasMany<Decision, $this>
+     */
+    public function decisions(): HasMany
+    {
+        return $this->hasMany(Decision::class);
+    }
+
+    /**
+     * @return HasOne<Decision, $this>
+     */
+    public function latestDecision(): HasOne
+    {
+        return $this->hasOne(Decision::class)->latestOfMany();
     }
 }

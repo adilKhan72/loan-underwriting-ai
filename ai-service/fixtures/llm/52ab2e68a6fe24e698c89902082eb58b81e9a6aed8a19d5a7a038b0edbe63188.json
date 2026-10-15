@@ -1,0 +1,10 @@
+{
+  "kind": "json",
+  "response": {
+    "applicant_message": "Thank you for applying. We are unable to approve your loan at this time because the income we could verify from your documents is below what this loan requires. If you have additional regular income, you are welcome to apply again with documents that show it.",
+    "principal_reasons": [
+      "The income we could verify is below the amount required for this loan."
+    ],
+    "underwriter_summary": "Declined under policy v1. MIN_VERIFIED_INCOME failed: verified monthly income of $1,210.00 is below the $1,500.00 minimum. PAY_DATE_RECENT passed. No further documents would change this outcome unless they evidence additional verifiable income."
+  }
+}

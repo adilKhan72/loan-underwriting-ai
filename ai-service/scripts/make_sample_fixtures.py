@@ -9,6 +9,9 @@ Usage (from ai-service/):  python -m scripts.make_sample_fixtures
 
 from pathlib import Path
 
+from app.explanation import SYSTEM_PROMPT as EXPLAIN_PROMPT
+from app.explanation import Explanation, ExplainRequest
+from app.explanation import _user_message as explain_message
 from app.extraction import SYSTEM_PROMPT, _user_message
 from app.llm.fixture import FixtureProvider
 from app.schemas import EXTRACTION_SCHEMAS, DocumentType, provider_schema
@@ -45,6 +48,23 @@ GOLDEN = {
 }
 
 
+# Matches tests/test_explanation.py::DECLINE.
+SAMPLE_DECLINE = {
+    "outcome": "decline",
+    "policy_version": "v1",
+    "rule_results": [
+        {"code": "MIN_VERIFIED_INCOME", "outcome": "fail", "message": "Verified monthly income $1,210.00 is below the $1,500.00 minimum."},
+        {"code": "PAY_DATE_RECENT", "outcome": "pass", "message": "Latest pay date is 12 days before submission."},
+    ],
+}
+
+GOLDEN_EXPLANATION = {
+    "underwriter_summary": "Declined under policy v1. MIN_VERIFIED_INCOME failed: verified monthly income of $1,210.00 is below the $1,500.00 minimum. PAY_DATE_RECENT passed. No further documents would change this outcome unless they evidence additional verifiable income.",
+    "applicant_message": "Thank you for applying. We are unable to approve your loan at this time because the income we could verify from your documents is below what this loan requires. If you have additional regular income, you are welcome to apply again with documents that show it.",
+    "principal_reasons": ["The income we could verify is below the amount required for this loan."],
+}
+
+
 def main() -> None:
     provider = FixtureProvider()
     for (filename, document_type), response in GOLDEN.items():
@@ -52,6 +72,10 @@ def main() -> None:
         schema = provider_schema(EXTRACTION_SCHEMAS[document_type])
         path = provider.save("json", SYSTEM_PROMPT, _user_message(document_type, text), schema, response)
         print(f"{filename} -> {path.name}")
+
+    request = ExplainRequest.model_validate(SAMPLE_DECLINE)
+    path = provider.save("json", EXPLAIN_PROMPT, explain_message(request), provider_schema(Explanation), GOLDEN_EXPLANATION)
+    print(f"sample decline explanation -> {path.name}")
 
 
 if __name__ == "__main__":
