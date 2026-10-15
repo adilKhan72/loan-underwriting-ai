@@ -23,6 +23,7 @@ class LoanApplicationResource extends JsonResource
             'stated_monthly_income_cents' => $this->stated_monthly_income_cents,
             'applicant' => new ApplicantResource($this->whenLoaded('applicant')),
             'documents' => DocumentResource::collection($this->whenLoaded('documents')),
+            'decision' => new DecisionResource($this->whenLoaded('latestDecision')),
             'submitted_at' => $this->submitted_at,
             'created_at' => $this->created_at,
         ];

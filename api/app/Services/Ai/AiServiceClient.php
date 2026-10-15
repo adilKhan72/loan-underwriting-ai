@@ -22,14 +22,38 @@ class AiServiceClient
      */
     public function extract(DocumentType $type, string $redactedText): array
     {
+        return $this->post('/v1/extract', [
+            'document_type' => $type->value,
+            'text' => $redactedText,
+        ]);
+    }
+
+    /**
+     * Sends decision facts only (outcome, policy version, rule codes and messages), never applicant data.
+     *
+     * @param  list<array{code: string, outcome: string, message: string}>  $ruleResults
+     * @return array{underwriter_summary: string, applicant_message: string, principal_reasons: list<string>, provider: string}
+     */
+    public function explain(string $outcome, string $policyVersion, array $ruleResults): array
+    {
+        return $this->post('/v1/explain', [
+            'outcome' => $outcome,
+            'policy_version' => $policyVersion,
+            'rule_results' => $ruleResults,
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function post(string $path, array $payload): array
+    {
         try {
             $response = Http::baseUrl($this->baseUrl)
                 ->timeout($this->timeout)
                 ->acceptJson()
-                ->post('/v1/extract', [
-                    'document_type' => $type->value,
-                    'text' => $redactedText,
-                ]);
+                ->post($path, $payload);
         } catch (ConnectionException $e) {
             throw new AiServiceUnavailable('ai-service unreachable: '.$e->getMessage(), previous: $e);
         }

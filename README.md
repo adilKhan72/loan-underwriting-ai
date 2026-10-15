@@ -24,6 +24,29 @@ All routes require a Sanctum bearer token. Money is in integer cents.
 
 Submitting dispatches one `ProcessDocument` job per document as a failure-tolerant **job batch**. Each job reads the PDF's text layer, **redacts PII** (SSN, account/routing/card numbers, email, phone, DOB) and calls the AI service. It then stores an `extraction` (data, errors, what was redacted, by type and count only) on the document. Outages retry with backoff (10s/60s/300s). Unreadable files (scans/images until OCR lands) go to `needs_review`. When the batch finishes, `ApplicationDocumentsProcessed` fires for the rules engine.
 
+### Underwriting decision (policy v1)
+
+When all documents are processed, `MakeDecision` builds **facts** from *validated* extractions only, and runs every
+rule (no short-circuit). Any **fail** → `decline`, else any **refer** → `refer`, else `approve`. The decision stores
+the policy version, every rule result and the facts snapshot, so it **replays identically** (there's a test for that).
+Explanations are generated afterwards by `ExplainDecision`. If the AI is down, the decision still stands.
+
+| Rule | Refer / fail when |
+|---|---|
+| `DOCUMENTS_READABLE` | refer if any document needs manual review |
+| `PAYSTUB_VERIFIED` | refer if no paystub verified, or frequency/gross missing |
+| `MIN_VERIFIED_INCOME` | **fail** below $1,500/month verified gross |
+| `STATED_INCOME_CONSISTENT` | refer if stated income exceeds verified by >20% (under-stating is fine) |
+| `PAYMENT_TO_INCOME` | refer above 15%, **fail** above 25% (amortised estimate at 36% APR) |
+| `PAY_DATE_RECENT` | refer if latest pay date is >45 days before submission, or after it |
+| `PAYROLL_DEPOSIT_MATCHES` | refer if no payroll deposit is within 5% of paystub net pay |
+| `OVERDRAFT_HISTORY` | refer at ≥3 overdraft/NSF events |
+| `EXTRACTION_CONFIDENCE` | refer if any extraction confidence is <0.70 (low confidence never declines) |
+
+`POST /v1/explain` receives the outcome and rule codes/messages only, never applicant data. It returns an
+underwriter summary, a plain-language applicant message (validated to contain no internal rule codes, retried
+once if it does) and up to 4 principal reasons for declines.
+
 ### AI service
 
 `POST /v1/extract` with `{"document_type": "paystub" | "bank_statement", "text": "<redacted text>"}` returns
@@ -94,7 +117,7 @@ For hosted models, set `LLM_PROVIDER=anthropic` or `openai` along with the match
 | 2 | Loan application domain: applicants, applications, documents API, PII encrypted at rest | ✅ done (#2) |
 | 3 | AI service: provider interface (Claude / OpenAI / Ollama / fixtures), `/v1/extract` with schema validation | ✅ done (#3) |
 | 4 | Document pipeline: submit → batch of queue jobs → PDF text → PII redaction → `/v1/extract` → stored extraction | ✅ done (#4) |
-| 5 | Rules engine (versioned policy) + `/v1/explain` | planned |
+| 5 | Rules engine (versioned policy) + `/v1/explain` | ✅ done (#5) |
 | 6 | Append-only audit trail + PII redaction before AI calls | planned |
 | 7 | Underwriter dashboard (Vue) + demo | planned |
 
