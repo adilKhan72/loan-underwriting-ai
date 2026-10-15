@@ -81,7 +81,8 @@ class AuditTrailTest extends TestCase
         if (DB::getDriverName() === 'pgsql') {
             // The trigger blocks even raw SQL...
             try {
-                DB::table('audit_events')->where('id', $decision->id)->update(['data' => '{"outcome":"approve"}']);
+                // Savepoint: a failed statement aborts the whole PostgreSQL transaction otherwise.
+                DB::transaction(fn () => DB::table('audit_events')->where('id', $decision->id)->update(['data' => '{"outcome":"approve"}']));
                 $this->fail('PostgreSQL trigger should block updates');
             } catch (QueryException $e) {
                 $this->assertStringContainsString('append-only', $e->getMessage());
