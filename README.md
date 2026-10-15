@@ -44,6 +44,20 @@ The full design is in [docs/architecture.md](docs/architecture.md). Key decision
 - [ADR-0003](docs/adr/0003-pluggable-llm-providers.md): Pluggable LLM providers with a deterministic fixture provider for tests
 - [ADR-0004](docs/adr/0004-pii-never-reaches-the-model.md): PII is redacted before any text reaches a model
 
+## Quick start
+
+Requires Docker only. No API keys needed: the AI service defaults to the deterministic `fixture` provider.
+
+```bash
+make key        # writes APP_KEY to .env
+make up         # postgres, redis, api (:8000), worker, ai-service (:8001)
+make migrate
+make test       # Laravel (Pint + tests) and ai-service tests, in containers
+```
+
+For a real local model: set `LLM_PROVIDER=ollama` in `.env`, then run `docker compose --profile local-llm up -d`.
+For hosted models, set `LLM_PROVIDER=anthropic` or `openai` along with the matching API key.
+
 ## Roadmap
 
 | # | Milestone | Status |
