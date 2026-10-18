@@ -23,7 +23,7 @@ services:
       POSTGRES_DB: underwriting
       POSTGRES_USER: underwriting
       POSTGRES_PASSWORD: underwriting
-    volumes: [pgdata:/var/lib/postgresql/data]
+    volumes: [pgdata:/var/lib/postgresql]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U underwriting"]
       interval: 5s
