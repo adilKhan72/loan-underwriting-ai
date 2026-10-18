@@ -1,4 +1,4 @@
-FROM php:8.4-cli-alpine
+FROM php:8.5-cli-alpine
 
 RUN apk add --no-cache postgresql-dev libzip-dev $PHPIZE_DEPS \
     && docker-php-ext-install pdo_pgsql pcntl zip \
